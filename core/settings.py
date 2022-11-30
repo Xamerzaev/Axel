@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "4854er0832h53DSd724.3--+00wq422wD8070
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['axel-company.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'axel-company.herokuapp.com']
 
 
 # Application definition
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'index',
     'route',
 ]
 
@@ -132,3 +133,11 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+from decouple import config
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('email', default='')
+EMAIL_HOST_PASSWORD = config('password', default='')
