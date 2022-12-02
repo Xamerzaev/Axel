@@ -1,13 +1,13 @@
-from django.views.generic import TemplateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.core.mail import EmailMultiAlternatives
+from geopy.geocoders import Nominatim
+import polyline
+import folium
+from route.getroute import get_route
 
 
-class Home(TemplateView):
-    template_name = 'index.html'
-
-    def post(self, request):
-
+def index(request):
+    if request.method == 'POST' and 'btn1' in request.POST:
         name = request.POST.get('name')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
@@ -35,5 +35,29 @@ class Home(TemplateView):
             subject, text_content, from_email, [email])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
-
         return redirect('index')
+
+    elif request.method == 'POST' and 'btn2' in request.POST:
+        from_country = request.POST.get("from_country")
+        from_city = request.POST.get("from_city")
+        from_street = request.POST.get('from_street')
+        to_country = request.POST.get("to_country")
+        to_city = request.POST.get("to_city")
+        to_street = request.POST.get('to_street')
+        app = Nominatim(user_agent='test')
+        from_location = app.geocode(f"{from_street},{from_city}, {from_country}").raw
+        to_location = app.geocode(f"{to_street},{to_city}, {to_country}").raw
+        # print raw data
+        figure = folium.Figure()
+        lat1,long1,lat2,long2=float(from_location['lat']),float(from_location['lon']),float(to_location['lat']),float(to_location['lon'])
+        route = get_route(long1,lat1,long2,lat2)
+        m = folium.Map(location=[(route['start_point'][0]),
+                                    (route['start_point'][1])], 
+                        zoom_start=10)
+        m.add_to(figure)
+        folium.PolyLine(route['route'],weight=8,color='blue',opacity=0.6).add_to(m)
+        figure.render()
+        context={'map':figure}
+        return render(request,'route/showroute.html',context)
+
+    return render(request, 'index.html')
