@@ -73,7 +73,13 @@ http://www.tooplate.com/view/2095-level
                         <div class="row">
                             
                             <div class="col-xs-12 ml-auto mr-auto ie-container-width-fix">
-                                
+                                {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
                                 <form action="" method="post" class="tm-search-form tm-section-pad-2">
                                     {% csrf_token %}
                                     Откуда?
